@@ -41,16 +41,11 @@
 </template>
 
 <script>
-    class XTimer extends HTMLElement {
+    class XTimer extends XComponent {
         constructor() {
             super();
 
-            ShadyCSS.styleElement(this);
-
-            this.attachShadow({ mode: "open" });
-            const template = document.getElementById("x-timer");
-            const templateClone = template.content.cloneNode(true);
-            this.shadowRoot.appendChild(templateClone);
+            this.makeShadowRoot();
         }
 
         start() {
@@ -74,9 +69,9 @@
 
         displayTime() {
             const hms = XTimer.time2hms(this._timeLeft);
-            this.shadowRoot.querySelector(".value-hours").textContent = hms.hours;
-            this.shadowRoot.querySelector(".value-minutes").textContent = hms.minutes;
-            this.shadowRoot.querySelector(".value-seconds").textContent = hms.seconds;
+            this.shadowRoot.$(".value-hours").textContent = hms.hours;
+            this.shadowRoot.$(".value-minutes").textContent = hms.minutes;
+            this.shadowRoot.$(".value-seconds").textContent = hms.seconds;
         }
 
         attributeChangedCallback(attrName, oldVal, newVal) {

@@ -20,7 +20,7 @@
 </template>
 
 <script>
-    class XSpoiler extends HTMLElement {
+    class XSpoiler extends XComponent {
         constructor() {
             super();
 
@@ -29,24 +29,10 @@
                 "when-open": "Свернуть"
             };
 
-            this.events = {
-                "close": new CustomEvent("x-spoiler.changed", {
-                    bubbles: true,
-                    detail: { opened: false },
-                }),
-                "open": new CustomEvent("x-spoiler.changed", {
-                    bubbles: true,
-                    detail: { opened: true },
-                }),
-            };
+            this.makeShadowRoot();
+            this.shadowRoot.$("button").textContent = this.text["when-close"];
 
-            this.attachShadow({ mode: "open" });
-            const template = document.getElementById("x-spoiler");
-            const templateClone = template.content.cloneNode(true);
-            templateClone.querySelector("button").textContent = this.text["when-close"];
-            this.shadowRoot.appendChild(templateClone);
-
-            this.shadowRoot.querySelector("button").addEventListener("click", () => {
+            this.shadowRoot.$("button").addEventListener("click", () => {
                 this.opened = !this.opened;
             });
         }
@@ -67,23 +53,22 @@
             switch (attrName) {
                 case "opened":
                     const opened = newVal !== null;
-                    const button = this.shadowRoot.querySelector("button");
                     const text = this.text[opened ? "when-open" : "when-close"];
-                    button.textContent = text;
-                    this.dispatchEvent(this.events[opened ? "open" : "close"]);
+                    this.shadowRoot.$("button").textContent = text;
+                    this.fireEvent("x-spoiler.changed", {opened});
                     break;
 
                 case "text-when-open":
                     this.text["when-open"] = newVal;
                     if (this.opened) {
-                        this.shadowRoot.querySelector("button").textContent = newVal;
+                        this.shadowRoot.$("button").textContent = newVal;
                     }
                     break;
 
                 case "text-when-close":
                     this.text["when-close"] = newVal;
                     if (!this.opened) {
-                        this.shadowRoot.querySelector("button").textContent = newVal;
+                        this.shadowRoot.$("button").textContent = newVal;
                     }
                     break;
             }
