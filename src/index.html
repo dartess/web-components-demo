@@ -25,25 +25,37 @@
         Изначально открытый элемент
     </x-spoiler>
 
-    <script src="https://cdn.polyfill.io/v2/polyfill.js?features=default"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.22/webcomponents-sd-ce.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/template-mb@2.0.6/template.js"></script>
+    <script>
+        (function () {
+            var wcReady = ("attachShadow" in document.documentElement) && ('customElements' in window);
 
-    <div id="custom-elements-adapter-test">
-        <script>
-            (function () {
-                if (isNative(window.customElements.define) === false) {
-                    document.getElementById("custom-elements-adapter-test").remove();
-                }
+            var scripts;
 
-                function isNative(fn) {
-                    return (/\{\s*\[native code\]\s*\}/).test('' + fn);
-                }
-            })();
-        </script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.22/custom-elements-es5-adapter.js"></script>
-    </div>
-    <script src="./app.js"></script>
+            if (wcReady) {
+                scripts = [
+                    "./app-es6.js"
+                ];
+            } else {
+                scripts = [
+                    "https://cdn.polyfill.io/v2/polyfill.js?features=default",
+                    "https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.22/webcomponents-sd-ce.js",
+                    "https://cdn.jsdelivr.net/npm/template-mb@2.0.6/template.js",
+                    "./app-es5.js"
+                ];
+            }
+
+            for (var i = 0; i < scripts.length; i++) {
+                insertScript(scripts[i]);
+            }
+
+            function insertScript(src) {
+                var script = document.createElement('script');
+                script.src = src;
+                script.async = false;
+                document.head.appendChild(script);
+            }
+        })();
+    </script>
 
     <script>
         document.querySelector("x-timer").addEventListener("x-timer.ended", function () {

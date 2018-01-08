@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const gulp = require("gulp");
+const gulpif = require('gulp-if');
 const babel = require("gulp-babel");
 const insert = require("gulp-insert");
 const jsdom = require("jsdom");
@@ -11,24 +12,28 @@ const replace = require("gulp-replace");
 const postcss = require("gulp-html-postcss");
 const autoprefixer = require("autoprefixer");
 const htmlmin = require("gulp-htmlmin");
+const uglify = require('gulp-uglify-es').default;
 
 const { JSDOM } = jsdom;
 
-gulp.task("scripts", () =>
-    gulp.src("src/components/*.html")
-        .pipe(concat("app.js"))
+gulp.task("scripts-es5", buildJS.bind(null, "es5"));
+
+gulp.task("scripts-es6", buildJS.bind(null, "es6"));
+
+function buildJS(mode) {
+    return gulp.src("src/components/*.html")
+        .pipe(concat(`app-${mode}.js`))
         .pipe(insert.transform(content => {
             const document = (new JSDOM(content)).window.document;
             const scriptsTags = document.querySelectorAll("script");
             const scriptsContents = Array.prototype.map.call(scriptsTags, tag => tag.textContent);
             return scriptsContents.join("");
         }))
-        .pipe(gap.prependFile("src/scaffolding.js"))
-        .pipe(babel({
-            presets: ["env"]
-        }))
+        .pipe(gulpif(mode === 'es5', gap.prependFile("src/scaffolding.js")))
+        .pipe(gulpif(mode === 'es5', babel({presets: ["env"]})))
+        .pipe(uglify())
         .pipe(gulp.dest("dist"))
-)
+}
 
 gulp.task("templates", () =>
     gulp.src("src/components/*.html")
@@ -60,7 +65,8 @@ gulp.task("html", () =>
 
 gulp.task("default", fn =>
     run(
-        "scripts",
+        "scripts-es5",
+        "scripts-es6",
         "templates",
         "html",
         fn
