@@ -49,7 +49,7 @@
     } catch (e) { }
 
     // шаблоны
-    document.querySelectorAll("template[data-component]").forEach(template => {
+    document.querySelectorAll("template[data-component]").forEach(function(template) {
         ShadyCSS.prepareTemplate(template, template.dataset["component"]);
     });
 })();
