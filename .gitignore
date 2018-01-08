@@ -1,0 +1,15 @@
+.idea
+.vscode
+*.sublime-project
+*.sublime-workspace
+*.orig
+*.bak
+
+.DS_Store
+Thumbs.db
+
+*.log
+
+dist/
+bower_components/
+node_modules/

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    @@templates
+
+    <x-timer time="10"></x-timer>
+
+    <x-spoiler>
+        Содержимое тега.
+    </x-spoiler>
+
+    <x-spoiler text-when-close="Узреть" text-when-open="Скрыть">
+        Ещё один x-spoiler с настроенным текстом
+    </x-spoiler>
+
+    <x-spoiler opened>
+        Изначально открытый элемент
+    </x-spoiler>
+
+    <script src="https://cdn.polyfill.io/v2/polyfill.js?features=default"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.22/webcomponents-sd-ce.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/template-mb@2.0.6/template.js"></script>
+
+    <div id="custom-elements-adapter-test">
+        <script>
+            (function () {
+                if (isNative(window.customElements.define) === false) {
+                    document.getElementById("custom-elements-adapter-test").remove();
+                }
+
+                function isNative(fn) {
+                    return (/\{\s*\[native code\]\s*\}/).test('' + fn);
+                }
+            })();
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.0.22/custom-elements-es5-adapter.js"></script>
+    </div>
+    <script src="./app.js"></script>
+
+    <script>
+        document.querySelector("x-timer").addEventListener("x-timer.ended", function () {
+            alert("Время закончилось");
+        })
+    </script>
+</body>
+
+</html>

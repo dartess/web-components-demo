@@ -1,0 +1,112 @@
+<template id="x-timer">
+    <div class="piece">
+        <div class="value value-hours"></div>
+        <div class="unit">ч.</div>
+    </div>
+    <div class="piece">
+        <div class="value value-minutes"></div>
+        <div class="unit">мин.</div>
+    </div>
+    <div class="piece">
+        <div class="value value-seconds"></div>
+        <div class="unit">сек.</div>
+    </div>
+
+    <style>
+        :host {
+            display: flex;
+            justify-content: center;
+        }
+
+        .piece {
+            width: 72px;
+            margin: 0 3px;
+            padding: 8px 0;
+            font-size: 15px;
+            line-height: 1;
+            text-align: center;
+            color: #888888;
+            box-shadow: 0 2px 0 0 #cccccc;
+            border-radius: 10px;
+            background-color: #ddeeff;
+        }
+
+        .value {
+            font-size: 32px;
+            line-height: 1;
+            font-weight: 600;
+            color: #555555;
+        }
+    </style>
+</template>
+
+<script>
+    class XTimer extends HTMLElement {
+        constructor() {
+            super();
+
+            ShadyCSS.styleElement(this);
+
+            this.attachShadow({ mode: "open" });
+            const template = document.getElementById("x-timer");
+            const templateClone = template.content.cloneNode(true);
+            this.shadowRoot.appendChild(templateClone);
+        }
+
+        start() {
+            window.clearInterval(this.interval);
+            this.iteration();
+            this.interval = window.setInterval(() => this.iteration(), 1000);
+        }
+
+        stop() {
+            clearInterval(this.interval);
+            this.dispatchEvent(new CustomEvent(`x-timer.ended`, { bubbles: true }));
+        }
+
+        iteration() {
+            this.displayTime();
+            this._timeLeft--;
+            if (this._timeLeft < 0) {
+                this.stop();
+            }
+        }
+
+        displayTime() {
+            const hms = XTimer.time2hms(this._timeLeft);
+            this.shadowRoot.querySelector(".value-hours").textContent = hms.hours;
+            this.shadowRoot.querySelector(".value-minutes").textContent = hms.minutes;
+            this.shadowRoot.querySelector(".value-seconds").textContent = hms.seconds;
+        }
+
+        attributeChangedCallback(attrName, oldVal, newVal) {
+            const time = parseInt(newVal, 10);
+            this._timeLeft = time > 0 ? time : 0;
+            this.start();
+        }
+
+        get time() {
+            return this.getAttribute("time");
+        }
+
+        static get observedAttributes() {
+            return [
+                "time",
+            ];
+        }
+
+        static time2hms(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            seconds -= hours * 3600;
+            const minutes = Math.floor(seconds / 60);
+            seconds -= minutes * 60;
+            return {
+                "hours": hours,
+                "minutes": minutes,
+                "seconds": seconds,
+            };
+        }
+    }
+
+    customElements.define("x-timer", XTimer); 
+</script>

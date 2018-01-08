@@ -1,0 +1,102 @@
+<template id="x-spoiler">
+    <style>
+        :host {
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        :host > section {
+            display: none;
+        }
+
+        :host([opened]) > section {
+            display: block;
+        }
+    </style>
+    <button type="button"></button>
+    <section>
+        <slot></slot>
+    </section>
+</template>
+
+<script>
+    class XSpoiler extends HTMLElement {
+        constructor() {
+            super();
+
+            this.text = {
+                "when-close": "Развернуть",
+                "when-open": "Свернуть"
+            };
+
+            this.events = {
+                "close": new CustomEvent("x-spoiler.changed", {
+                    bubbles: true,
+                    detail: { opened: false },
+                }),
+                "open": new CustomEvent("x-spoiler.changed", {
+                    bubbles: true,
+                    detail: { opened: true },
+                }),
+            };
+
+            this.attachShadow({ mode: "open" });
+            const template = document.getElementById("x-spoiler");
+            const templateClone = template.content.cloneNode(true);
+            templateClone.querySelector("button").textContent = this.text["when-close"];
+            this.shadowRoot.appendChild(templateClone);
+
+            this.shadowRoot.querySelector("button").addEventListener("click", () => {
+                this.opened = !this.opened;
+            });
+        }
+
+        get opened() {
+            return this.getAttribute("opened") !== null;
+        }
+
+        set opened(state) {
+            if (!!state) {
+                this.setAttribute("opened", "");
+            } else {
+                this.removeAttribute("opened");
+            }
+        }
+
+        attributeChangedCallback(attrName, oldVal, newVal) {
+            switch (attrName) {
+                case "opened":
+                    const opened = newVal !== null;
+                    const button = this.shadowRoot.querySelector("button");
+                    const text = this.text[opened ? "when-open" : "when-close"];
+                    button.textContent = text;
+                    this.dispatchEvent(this.events[opened ? "open" : "close"]);
+                    break;
+
+                case "text-when-open":
+                    this.text["when-open"] = newVal;
+                    if (this.opened) {
+                        this.shadowRoot.querySelector("button").textContent = newVal;
+                    }
+                    break;
+
+                case "text-when-close":
+                    this.text["when-close"] = newVal;
+                    if (!this.opened) {
+                        this.shadowRoot.querySelector("button").textContent = newVal;
+                    }
+                    break;
+            }
+        }
+
+        static get observedAttributes() {
+            return [
+                "opened",
+                "text-when-open",
+                "text-when-close",
+            ];
+        }
+    }
+
+    customElements.define("x-spoiler", XSpoiler);
+</script>
