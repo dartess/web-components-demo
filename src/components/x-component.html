@@ -1,0 +1,53 @@
+<script>
+    class XComponent extends HTMLElement {
+        constructor() {
+            super();
+
+            this._cache = {
+                events: {},
+            };
+        }
+
+        $(selector) {
+            return this.querySelector(selector);
+        }
+
+        $$(selector) {
+            return this.querySelectorAll(selector);
+        }
+
+        fireEvent(eventName, eventDetail, bubbles = true) {
+            const eventKey = JSON.stringify(arguments);
+            if (!(eventKey in this._cache.events)) {
+                const customEventInit = { bubbles };
+                if (eventDetail instanceof Object) {
+                    customEventInit.detail = eventDetail;
+                }
+                this._cache.events[eventKey] = new CustomEvent(eventName, customEventInit);
+            }
+            this.dispatchEvent(this._cache.events[eventKey]);
+        }
+
+        getTemplateCopy(templateId = this.is) {
+            const template = document.getElementById(templateId);
+            if (!template) {
+                throw new Error(`Шаблон ${templateId} не найден`);
+            }
+            return template.content.cloneNode(true);
+        }
+
+        makeShadowRoot(options = {}) {
+            ("ShadyCSS" in window) ? ShadyCSS.styleElement(this) : null;
+            this.attachShadow({ mode: "open" });
+            const templateId = options.templateId || this.is;
+            const templateClone = this.getTemplateCopy(templateId);
+            this.shadowRoot.appendChild(templateClone);
+            this.shadowRoot.$ = selector => this.shadowRoot.querySelector(selector);
+            this.shadowRoot.$$ = selector => new CustomNodeList(this.shadowRoot.querySelectorAll(selector));
+        }
+
+        get is() {
+            return this.localName;
+        }
+    }
+</script>
