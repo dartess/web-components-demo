@@ -1,1 +1,1 @@
-Демо репозиторий для статьи https://codepen.io/dartess/post/web-components-in-production
+Демо репозиторий для статьи https://habrahabr.ru/post/346670/
